@@ -1,346 +1,88 @@
-按照你现在已经验证成功的情况，这是你从零开始做到动态导航前的完整命令链。
 
----
+本目录下的仓储场景用于移动机器人仿真实验，运行环境如下：
 
-# 1. 启动仿真环境
+- Ubuntu 20.04
+- ROS Noetic
+- Gazebo 11.15.1
 
-先设置机器人型号：
-（好像默认就有，
-grep TURTLEBOT3_MODEL ~/.bashrc 
-输出export TURTLEBOT3_MODEL=burger就行）
+## 依赖安装
+
+可以先直接尝试启动对应命令；若运行过程中提示缺少依赖，再执行以下安装命令：
 
 ```bash
-export TURTLEBOT3_MODEL=burger
+sudo apt update
+sudo apt install ros-noetic-gazebo-ros ros-noetic-gazebo-ros-control ros-noetic-gazebo-plugins ros-noetic-teleop-twist-keyboard ros-noetic-robot-state-publisher ros-noetic-rviz ros-noetic-map-server ros-noetic-turtlebot3-slam ros-noetic-turtlebot3-navigation -y
 ```
 
-启动 Gazebo Classic，并加载项目里的缩小版仓库世界：
+## 建图阶段命令
+
+### 终端1：启动世界
 
 ```bash
-cd /home/nci/sim_ws
-source devel/setup.bash
 roslaunch /home/nci/sim_ws/src/Models/warehouse_world/warehouse_world.launch
 ```
 
-验证：
-
-```bash
-rostopic list
-```
-
-应该能看到：
-
-```text
-/scan
-/odom
-/cmd_vel
-/tf
-/gazebo/model_states
-```
-
----
-
-# 3. 建图（gmapping）
-
-新终端：
-
-启动 SLAM：
+### 终端2：启动 SLAM 建图
 
 ```bash
 roslaunch turtlebot3_slam turtlebot3_slam.launch slam_methods:=gmapping
 ```
 
----
-
-# 4. 启动键盘控制
-
-新终端：
+### 终端3：运行 `robot_state_publisher`
 
 ```bash
-rosrun teleop_twist_keyboard teleop_twist_keyboard.py
+rosrun robot_state_publisher robot_state_publisher
 ```
 
-新终端：
+### 终端4：开启移动节点
 
 ```bash
 rosrun walk pub
 ```
 
----
-
-# 5. 保存地图
-
-机器人走完整个场景后：
+### 终端5：开启键盘控制
 
 ```bash
-mkdir -p ~/maps
+rosrun teleop_twist_keyboard teleop_twist_keyboard.py
 ```
 
-保存地图：
+机器人遍历环境完成建图后，执行地图保存命令。
+
+### 终端6：保存地图
 
 ```bash
-rosrun map_server map_saver -f ~/maps/stage1
+rosrun map_server map_saver -f warehouse_world_small
 ```
 
-得到：
+保存完成后，关闭 RViz，以及建图阶段使用的终端2、3、4、5、6。
 
-```text
-~/maps/stage1.pgm
-~/maps/stage1.yaml
-```
+## 导航阶段命令
 
----
-
-# 6. 关闭建图
-
-关闭：
-
-```text
-gmapping
-teleop
-walk
-rviz
-```
-
-保留 Gazebo。
-
----
-
-# 7. 加载地图
-
-新终端：
+### 终端7：启动动态障碍物
 
 ```bash
-rosrun map_server map_server ~/maps/stage1.yaml
+MOVING_OBSTACLE_SPEED=0.04 roslaunch dynamic_obstacles spawn_boxes.launch
 ```
 
----
-
-# 8. 启动导航系统
-
-新终端：
+### 终端8：打开地图导航
 
 ```bash
-export TURTLEBOT3_MODEL=burger
+roslaunch turtlebot3_navigation turtlebot3_navigation.launch map_file:=$HOME/maps/warehouse_world_small.yaml
 ```
 
-启动：
+### 终端3：再次运行 `robot_state_publisher`
 
 ```bash
-roslaunch turtlebot3_navigation turtlebot3_navigation.launch \
-map_file:=$HOME/maps/stage1.yaml
+rosrun robot_state_publisher robot_state_publisher
 ```
 
-这个会启动：
+## RViz 操作
 
-```text
-map_server
-AMCL
-move_base
-RViz
-```
-
-（实际上你自己单独启动 map_server 也能用，不过后面建议只保留这个 launch）
-
----
-
-# 9. AMCL初始化
-
-RViz中：
-
-```text
-2D Pose Estimate
-```
-
-点击机器人实际位置。
-
-拖出机器人朝向。
-
-等待几秒。
-
-地图与激光重合。
-
----
-
-# 10. 自动导航
-
-RViz中：
-
-```text
-2D Nav Goal
-```
-
-点击目标位置。
-
-拖出目标朝向。
-
-机器人自动：
-
-```text
-全局规划
-↓
-局部规划
-↓
-路径跟踪
-↓
-到达目标
-```
-
----
-
-# 验证命令(不用执行)
-
-## 查看AMCL
-
-```bash
-rostopic echo /amcl_pose
-```
-
----
-
-## 查看TF
-
-```bash
-rosrun tf tf_echo map odom
-```
-
----
-
-## 查看move_base
-
-```bash
-rosnode list | grep move
-```
-
-应该看到：
-
-```text
-/move_base
-```
-
----
-
-## 查看规划路径
-
-```bash
-rostopic list | grep plan
-```
-
-一般有：
-
-```text
-/move_base/NavfnROS/plan
-/move_base/DWAPlannerROS/local_plan
-```
-
----
-
-# 课程要求对应关系
-
-| 课程要求    | 你的实现                     |
-| ------- | ------------------------ |
-| 环境感知    | 激光雷达 + gmapping          |
-| 栅格地图构建  | stage1.pgm + stage1.yaml |
-| 移动机器人定位 | AMCL                     |
-| 路径规划    | Global Planner(A*)       |
-| 轨迹规划    | DWA                      |
-| 路径跟踪    | move_base 输出 `/cmd_vel`  |
-| 到达目标点   | 2D Nav Goal 成功           |
-
----
-
-# 下一阶段（准备加分）
-
-已经新增：
-
-```text
-dynamic_obstacles
-├── CMakeLists.txt
-├── package.xml
-├── launch
-│   └── spawn_boxes.launch
-└── scripts
-    └── moving_obstacles.py
-```
-
-实现流程：
-
-```text
-动态障碍物
-↓
-/gazebo/set_model_state
-↓
-DWA动态避障
-↓
-到达目标
-```
-
-## 启动动态障碍物
-
-在 `warehouse_world.launch` 已经启动的前提下，新开一个终端：
-
-```bash
-cd /home/nci/sim_ws
-source devel/setup.bash
-roslaunch dynamic_obstacles spawn_boxes.launch
-```
-
-默认行为：
-
-```text
-模型名: moving_box_obstacle
-运动方向: y轴往返
-默认范围: -0.75 ~ 0.75
-默认速度: 0.12 m/s
-```
-
-如果你想临时调整动态障碍物参数，可以这样启动：
-
-```bash
-MOVING_OBSTACLE_Y_MIN=-0.9 \
-MOVING_OBSTACLE_Y_MAX=0.9 \
-MOVING_OBSTACLE_SPEED=0.15 \
-roslaunch dynamic_obstacles spawn_boxes.launch
-```
-
-## 验证动态障碍物是否生效
-
-### 1. 查看 Gazebo 里的模型状态
-
-```bash
-rostopic echo /gazebo/model_states
-```
-
-你应该能看到：
-
-```text
-moving_box_obstacle
-```
-
-并且它的 `pose.position.y` 会持续变化。
-
-### 2. 在 Gazebo 中直接观察
-
-你应该能看到橙色方块沿 y 轴来回移动。
-
-### 3. 在导航中验证避障
-
-保持：
-
-```text
-Gazebo
-map_server
-AMCL
-move_base
-dynamic_obstacles
-```
-
-然后在 RViz 里继续发送 `2D Nav Goal`。
-如果局部规划正常，机器人接近橙色方块时会出现绕行、减速或等待再通过。
+1. 使用 `2D Pose Estimate` 初始化机器人位置。
+2. 使用 `2D Nav Goal` 设置目标点并开始导航。
 
 ## 说明
 
-- 现在的动态障碍物实现方式是 Gazebo Classic 兼容方案。
-- 不再依赖 `gz-sim-*` 插件。
-- `warehouse_world` 已在上一次缩放基础上再次缩小到约当前的 0.5 倍，机器人在场景中的相对尺寸会更自然。
-
-这一步完成后，你的项目展示效果会比单纯 TurtleBot3 官方 Demo 强不少，而且不需要推翻现有系统。
+- 若你的工作空间路径不是 `/home/nci/sim_ws`，请自行修改第一条 `roslaunch` 命令中的绝对路径。
+- 注意，除了命令的路径要改以外，第一条命令里的warehouse_world.launch，里面的路径也要改
+- 若地图保存路径与 `$HOME/maps/warehouse_world_small.yaml` 不一致，请同步修改导航命令中的 `map_file` 参数。

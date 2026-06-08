@@ -10,7 +10,7 @@ def main():
     model_name = rospy.get_param('~model_name', 'moving_box_obstacle')
     y_min      = rospy.get_param('~y_min',      -0.75)
     y_max      = rospy.get_param('~y_max',       0.75)
-    speed      = rospy.get_param('~speed',       0.12)   # m/s
+    speed      = rospy.get_param('~speed',       0.04)   # m/s
     rate_hz    = rospy.get_param('~rate',        20)
 
     x = 0.5
