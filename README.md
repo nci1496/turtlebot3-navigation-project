@@ -234,29 +234,7 @@ rostopic list | grep plan
 
 ---
 
-# 当前TF树
-
-你最终确认正常的是：
-
-```text
-map
- ↓
-odom
- ↓
-base_footprint
- ↓
-base_link
- ├── base_scan
- ├── imu_link
- └── caster_back_link
-```
-
-完全正常。
-
----
-
 # 课程要求对应关系
-
 
 | 课程要求    | 你的实现                     |
 | ------- | ------------------------ |
@@ -267,7 +245,6 @@ base_link
 | 轨迹规划    | DWA                      |
 | 路径跟踪    | move_base 输出 `/cmd_vel`  |
 | 到达目标点   | 2D Nav Goal 成功           |
-
 
 ---
 
@@ -312,16 +289,16 @@ roslaunch dynamic_obstacles spawn_boxes.launch
 ```text
 模型名: moving_box_obstacle
 运动方向: y轴往返
-默认范围: -1.5 ~ 1.5
-默认速度: 0.20 m/s
+默认范围: -0.75 ~ 0.75
+默认速度: 0.12 m/s
 ```
 
 如果你想临时调整动态障碍物参数，可以这样启动：
 
 ```bash
-MOVING_OBSTACLE_Y_MIN=-1.75 \
-MOVING_OBSTACLE_Y_MAX=1.75 \
-MOVING_OBSTACLE_SPEED=0.25 \
+MOVING_OBSTACLE_Y_MIN=-0.9 \
+MOVING_OBSTACLE_Y_MAX=0.9 \
+MOVING_OBSTACLE_SPEED=0.15 \
 roslaunch dynamic_obstacles spawn_boxes.launch
 ```
 
@@ -364,8 +341,6 @@ dynamic_obstacles
 
 - 现在的动态障碍物实现方式是 Gazebo Classic 兼容方案。
 - 不再依赖 `gz-sim-*` 插件。
-- `warehouse_world` 已缩小到大约原来的 0.5 倍，机器人在场景中的相对尺寸会更自然。
-
-这一步完成后，你的项目展示效果会比单纯 TurtleBot3 官方 Demo 强不少，而且不需要推翻现有系统。
+- `warehouse_world` 已在上一次缩放基础上再次缩小到约当前的 0.5 倍，机器人在场景中的相对尺寸会更自然。
 
 这一步完成后，你的项目展示效果会比单纯 TurtleBot3 官方 Demo 强不少，而且不需要推翻现有系统。

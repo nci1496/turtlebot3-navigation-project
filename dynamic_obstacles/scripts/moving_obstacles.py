@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 
 import rospy
-import math
 from gazebo_msgs.srv import SetModelState
 from geometry_msgs.msg import Pose, Point, Quaternion
 
@@ -9,14 +8,14 @@ def main():
     rospy.init_node('moving_obstacles')
 
     model_name = rospy.get_param('~model_name', 'moving_box_obstacle')
-    y_min      = rospy.get_param('~y_min',      -1.5)
-    y_max      = rospy.get_param('~y_max',       1.5)
-    speed      = rospy.get_param('~speed',       0.20)   # m/s
+    y_min      = rospy.get_param('~y_min',      -0.75)
+    y_max      = rospy.get_param('~y_max',       0.75)
+    speed      = rospy.get_param('~speed',       0.12)   # m/s
     rate_hz    = rospy.get_param('~rate',        20)
 
     x = 0.5
-    y = 2.2
-    z = 0.5
+    y = 1.1
+    z = 0.25
     direction = 1
 
     rospy.loginfo('[moving_obstacles] model=%s  y=[%.2f, %.2f]  speed=%.2f m/s',
