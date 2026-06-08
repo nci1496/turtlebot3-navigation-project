@@ -13,10 +13,12 @@ grep TURTLEBOT3_MODEL ~/.bashrc
 export TURTLEBOT3_MODEL=burger
 ```
 
-启动 Gazebo：
+启动 Gazebo Classic，并加载项目里的缩小版仓库世界：
 
 ```bash
-roslaunch turtlebot3_gazebo turtlebot3_world.launch
+cd /home/nci/sim_ws
+source devel/setup.bash
+roslaunch /home/nci/sim_ws/src/Models/warehouse_world/warehouse_world.launch
 ```
 
 验证：
@@ -32,6 +34,7 @@ rostopic list
 /odom
 /cmd_vel
 /tf
+/gazebo/model_states
 ```
 
 ---
@@ -270,24 +273,99 @@ base_link
 
 # 下一阶段（准备加分）
 
-准备新增：
+已经新增：
 
 ```text
 dynamic_obstacles
+├── CMakeLists.txt
+├── package.xml
 ├── launch
 │   └── spawn_boxes.launch
 └── scripts
     └── moving_obstacles.py
 ```
 
-实现：
+实现流程：
 
 ```text
 动态障碍物
+↓
+/gazebo/set_model_state
 ↓
 DWA动态避障
 ↓
 到达目标
 ```
+
+## 启动动态障碍物
+
+在 `warehouse_world.launch` 已经启动的前提下，新开一个终端：
+
+```bash
+cd /home/nci/sim_ws
+source devel/setup.bash
+roslaunch dynamic_obstacles spawn_boxes.launch
+```
+
+默认行为：
+
+```text
+模型名: moving_box_obstacle
+运动方向: y轴往返
+默认范围: -1.5 ~ 1.5
+默认速度: 0.20 m/s
+```
+
+如果你想临时调整动态障碍物参数，可以这样启动：
+
+```bash
+MOVING_OBSTACLE_Y_MIN=-1.75 \
+MOVING_OBSTACLE_Y_MAX=1.75 \
+MOVING_OBSTACLE_SPEED=0.25 \
+roslaunch dynamic_obstacles spawn_boxes.launch
+```
+
+## 验证动态障碍物是否生效
+
+### 1. 查看 Gazebo 里的模型状态
+
+```bash
+rostopic echo /gazebo/model_states
+```
+
+你应该能看到：
+
+```text
+moving_box_obstacle
+```
+
+并且它的 `pose.position.y` 会持续变化。
+
+### 2. 在 Gazebo 中直接观察
+
+你应该能看到橙色方块沿 y 轴来回移动。
+
+### 3. 在导航中验证避障
+
+保持：
+
+```text
+Gazebo
+map_server
+AMCL
+move_base
+dynamic_obstacles
+```
+
+然后在 RViz 里继续发送 `2D Nav Goal`。
+如果局部规划正常，机器人接近橙色方块时会出现绕行、减速或等待再通过。
+
+## 说明
+
+- 现在的动态障碍物实现方式是 Gazebo Classic 兼容方案。
+- 不再依赖 `gz-sim-*` 插件。
+- `warehouse_world` 已缩小到大约原来的 0.5 倍，机器人在场景中的相对尺寸会更自然。
+
+这一步完成后，你的项目展示效果会比单纯 TurtleBot3 官方 Demo 强不少，而且不需要推翻现有系统。
 
 这一步完成后，你的项目展示效果会比单纯 TurtleBot3 官方 Demo 强不少，而且不需要推翻现有系统。

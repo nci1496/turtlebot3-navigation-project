@@ -1,0 +1,12 @@
+<?xml version="1.0"?>
+<package format="2">
+  <name>dynamic_obstacles</name>
+  <version>0.1.0</version>
+  <description>Dynamic obstacle controller for Gazebo Classic via /gazebo/set_model_state</description>
+  <maintainer email="user@example.com">User</maintainer>
+  <license>BSD</license>
+  <buildtool_depend>catkin</buildtool_depend>
+  <depend>rospy</depend>
+  <depend>gazebo_msgs</depend>
+  <depend>geometry_msgs</depend>
+</package>

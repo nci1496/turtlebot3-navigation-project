@@ -3,36 +3,20 @@
   <world name="warehouse_world">
 
 <!-- ===================================================== -->
-<!-- Plugins needed for the simulation                     -->
-<!-- Gazebo uses system plugins to enable core features   -->
+<!-- Plugins needed for the simulation (Gazebo Classic)    -->
 <!-- ===================================================== -->
 
 <!-- Physics engine: enables dynamics simulation
      (gravity, collisions, wheel motion, forces) -->
-<plugin filename="gz-sim-physics-system"
-        name="gz::sim::systems::Physics"/>
+<plugin name="gazebo_rosphysics" filename="libgazebo_rosphysics.so"/>
 
 <!-- User commands: allows external commands such as
      spawning or deleting entities from ROS or CLI -->
-<plugin filename="gz-sim-user-commands-system"
-        name="gz::sim::systems::UserCommands"/>
+<plugin name="gazebo_ros_api_plugin" filename="libgazebo_ros_api_plugin.so"/>
 
-<!-- Scene broadcaster: sends simulation updates to
-     the GUI so objects move correctly in the viewer -->
-<plugin filename="gz-sim-scene-broadcaster-system"
-        name="gz::sim::systems::SceneBroadcaster"/>
+<!-- Model publisher: sends model states to ROS topics -->
+<plugin name="gazebo_ros_model_pose_plugin" filename="libgazebo_ros_model_pose_plugin.so"/>
 
-<!-- Sensors system: enables simulated sensors such as
-     LiDAR, cameras, IMU, etc. Without this plugin
-     sensors exist but do not produce data -->
-<plugin filename="gz-sim-sensors-system"
-        name="gz::sim::systems::Sensors">
-
-  <!-- Rendering engine used by sensors.
-       "ogre2" is standard but WSL2 often works better with "ogre". -->
-  <render_engine>ogre</render_engine>
-
-</plugin>
 <sun>
   <pose>0 0 10 0 0 0</pose>
   <diffuse>1 1 1 1</diffuse>
@@ -58,7 +42,7 @@
       <geometry>
         <plane>
           <normal>0 0 1</normal>
-          <size>40 40</size>
+          <size>20 20</size>
         </plane>
       </geometry>
     </collision>
@@ -67,7 +51,7 @@
       <geometry>
         <plane>
           <normal>0 0 1</normal>
-          <size>40 40</size>
+          <size>20 20</size>
         </plane>
       </geometry>
 
@@ -81,19 +65,20 @@
 
   </link>
 </model>
+
     <!-- ===================================================== -->
-    <!-- OUTER WALLS -->
+    <!-- OUTER WALLS (scaled to ~50%) -->
     <!-- ===================================================== -->
 
     <model name="wall_north">
       <static>true</static>
-      <pose>0 12 1 0 0 0</pose>
+      <pose>0 6 1 0 0 0</pose>
       <link name="link">
         <collision name="collision">
-          <geometry><box><size>30 0.2 2</size></box></geometry>
+          <geometry><box><size>15 0.2 2</size></box></geometry>
         </collision>
         <visual name="visual">
-          <geometry><box><size>30 0.2 2</size></box></geometry>
+          <geometry><box><size>15 0.2 2</size></box></geometry>
           <material>
             <ambient>0 1 0 1</ambient>
             <diffuse>0 1 0 1</diffuse>
@@ -104,13 +89,13 @@
 
     <model name="wall_south">
       <static>true</static>
-      <pose>0 -12 1 0 0 0</pose>
+      <pose>0 -6 1 0 0 0</pose>
       <link name="link">
         <collision name="collision">
-          <geometry><box><size>30 0.2 2</size></box></geometry>
+          <geometry><box><size>15 0.2 2</size></box></geometry>
         </collision>
         <visual name="visual">
-          <geometry><box><size>30 0.2 2</size></box></geometry>
+          <geometry><box><size>15 0.2 2</size></box></geometry>
           <material>
             <ambient>0 0 1 1</ambient>
             <diffuse>0 0 1 1</diffuse>
@@ -121,13 +106,13 @@
 
     <model name="wall_east">
       <static>true</static>
-      <pose>15 0 1 0 0 0</pose>
+      <pose>7.5 0 1 0 0 0</pose>
       <link name="link">
         <collision name="collision">
-          <geometry><box><size>0.2 24 2</size></box></geometry>
+          <geometry><box><size>0.2 12 2</size></box></geometry>
         </collision>
         <visual name="visual">
-          <geometry><box><size>0.2 24 2</size></box></geometry>
+          <geometry><box><size>0.2 12 2</size></box></geometry>
           <material>
             <ambient>1 0 0 1</ambient>
             <diffuse>1 0 0 1</diffuse>
@@ -138,13 +123,13 @@
 
     <model name="wall_west">
       <static>true</static>
-      <pose>-15 0 1 0 0 0</pose>
+      <pose>-7.5 0 1 0 0 0</pose>
       <link name="link">
         <collision name="collision">
-          <geometry><box><size>0.2 24 2</size></box></geometry>
+          <geometry><box><size>0.2 12 2</size></box></geometry>
         </collision>
         <visual name="visual">
-          <geometry><box><size>0.2 24 2</size></box></geometry>
+          <geometry><box><size>0.2 12 2</size></box></geometry>
           <material>
             <ambient>1 1 0 1</ambient>
             <diffuse>1 1 0 1</diffuse>
@@ -154,19 +139,19 @@
     </model>
 
     <!-- ===================================================== -->
-    <!-- INTERNAL WALLS -->
+    <!-- INTERNAL WALLS (scaled to ~50%) -->
     <!-- ===================================================== -->
 
     <!-- Horizontal wall across the middle with one central opening -->
     <model name="mid_wall_left">
       <static>true</static>
-      <pose>-8.5 0 1 0 0 0</pose>
+      <pose>-4.25 0 1 0 0 0</pose>
       <link name="link">
         <collision name="collision">
-          <geometry><box><size>9 0.2 2</size></box></geometry>
+          <geometry><box><size>4.5 0.2 2</size></box></geometry>
         </collision>
         <visual name="visual">
-          <geometry><box><size>9 0.2 2</size></box></geometry>
+          <geometry><box><size>4.5 0.2 2</size></box></geometry>
           <material>
             <ambient>0.7 0.7 0.7 1</ambient>
             <diffuse>0.7 0.7 0.7 1</diffuse>
@@ -177,13 +162,13 @@
 
     <model name="mid_wall_right">
       <static>true</static>
-      <pose>8.5 0 1 0 0 0</pose>
+      <pose>4.25 0 1 0 0 0</pose>
       <link name="link">
         <collision name="collision">
-          <geometry><box><size>9 0.2 2</size></box></geometry>
+          <geometry><box><size>4.5 0.2 2</size></box></geometry>
         </collision>
         <visual name="visual">
-          <geometry><box><size>9 0.2 2</size></box></geometry>
+          <geometry><box><size>4.5 0.2 2</size></box></geometry>
           <material>
             <ambient>0.7 0.7 0.7 1</ambient>
             <diffuse>0.7 0.7 0.7 1</diffuse>
@@ -196,13 +181,13 @@
     <!-- top segment -->
     <model name="mid_vertical_top">
       <static>true</static>
-      <pose>0 10 1 0 0 0</pose>
+      <pose>0 5 1 0 0 0</pose>
       <link name="link">
         <collision name="collision">
-          <geometry><box><size>0.2 4 2</size></box></geometry>
+          <geometry><box><size>0.2 2 2</size></box></geometry>
         </collision>
         <visual name="visual">
-          <geometry><box><size>0.2 4 2</size></box></geometry>
+          <geometry><box><size>0.2 2 2</size></box></geometry>
           <material>
             <ambient>0.7 0.7 0.7 1</ambient>
             <diffuse>0.7 0.7 0.7 1</diffuse>
@@ -211,17 +196,17 @@
       </link>
     </model>
 
-    <!-- upper-middle segment -->
-<!--
+    <!-- upper-middle segment (disabled) -->
+    <!--
     <model name="mid_vertical_upper">
       <static>true</static>
-      <pose>0 3.5 1 0 0 0</pose>
+      <pose>0 1.75 1 0 0 0</pose>
       <link name="link">
         <collision name="collision">
-          <geometry><box><size>0.2 5 2</size></box></geometry>
+          <geometry><box><size>0.2 2.5 2</size></box></geometry>
         </collision>
         <visual name="visual">
-          <geometry><box><size>0.2 5 2</size></box></geometry>
+          <geometry><box><size>0.2 2.5 2</size></box></geometry>
           <material>
             <ambient>0.7 0.7 0.7 1</ambient>
             <diffuse>0.7 0.7 0.7 1</diffuse>
@@ -229,18 +214,19 @@
         </visual>
       </link>
     </model>
+    -->
 
-    <!-- lower-middle segment -->
-<!--
+    <!-- lower-middle segment (disabled) -->
+    <!--
     <model name="mid_vertical_lower">
       <static>true</static>
-      <pose>0 -3.5 1 0 0 0</pose>
+      <pose>0 -1.75 1 0 0 0</pose>
       <link name="link">
         <collision name="collision">
-          <geometry><box><size>0.2 5 2</size></box></geometry>
+          <geometry><box><size>0.2 2.5 2</size></box></geometry>
         </collision>
         <visual name="visual">
-          <geometry><box><size>0.2 5 2</size></box></geometry>
+          <geometry><box><size>0.2 2.5 2</size></box></geometry>
           <material>
             <ambient>0.7 0.7 0.7 1</ambient>
             <diffuse>0.7 0.7 0.7 1</diffuse>
@@ -248,17 +234,18 @@
         </visual>
       </link>
     </model>
+    -->
 
     <!-- bottom segment -->
     <model name="mid_vertical_bottom">
       <static>true</static>
-      <pose>0 -10 1 0 0 0</pose>
+      <pose>0 -5 1 0 0 0</pose>
       <link name="link">
         <collision name="collision">
-          <geometry><box><size>0.2 4 2</size></box></geometry>
+          <geometry><box><size>0.2 2 2</size></box></geometry>
         </collision>
         <visual name="visual">
-          <geometry><box><size>0.2 4 2</size></box></geometry>
+          <geometry><box><size>0.2 2 2</size></box></geometry>
           <material>
             <ambient>0.7 0.7 0.7 1</ambient>
             <diffuse>0.7 0.7 0.7 1</diffuse>
@@ -268,19 +255,19 @@
     </model>
 
     <!-- ===================================================== -->
-    <!-- LOCAL BLOCKERS / AISLE OBSTACLES -->
+    <!-- LOCAL BLOCKERS / AISLE OBSTACLES (scaled to ~50%) -->
     <!-- ===================================================== -->
 
     <!-- Top-left quadrant blocker -->
     <model name="blocker_tl">
       <static>true</static>
-      <pose>-7 5.5 0.75 0 0 0</pose>
+      <pose>-3.5 2.75 0.75 0 0 0</pose>
       <link name="link">
         <collision name="collision">
-          <geometry><box><size>5 0.2 1.5</size></box></geometry>
+          <geometry><box><size>2.5 0.2 1.5</size></box></geometry>
         </collision>
         <visual name="visual">
-          <geometry><box><size>5 0.2 1.5</size></box></geometry>
+          <geometry><box><size>2.5 0.2 1.5</size></box></geometry>
           <material>
             <ambient>0.4 0.4 0.4 1</ambient>
             <diffuse>0.4 0.4 0.4 1</diffuse>
@@ -292,13 +279,13 @@
     <!-- Top-right quadrant blocker -->
     <model name="blocker_tr">
       <static>true</static>
-      <pose>7 8.8 0.75 0 0 0</pose>
+      <pose>3.5 4.4 0.75 0 0 0</pose>
       <link name="link">
         <collision name="collision">
-          <geometry><box><size>5 0.2 1.5</size></box></geometry>
+          <geometry><box><size>2.5 0.2 1.5</size></box></geometry>
         </collision>
         <visual name="visual">
-          <geometry><box><size>5 0.2 1.5</size></box></geometry>
+          <geometry><box><size>2.5 0.2 1.5</size></box></geometry>
           <material>
             <ambient>0.4 0.4 0.4 1</ambient>
             <diffuse>0.4 0.4 0.4 1</diffuse>
@@ -310,16 +297,44 @@
     <!-- Bottom-left quadrant blocker -->
     <model name="blocker_bl">
       <static>true</static>
-      <pose>-7 -8.8 0.75 0 0 0</pose>
+      <pose>-3.5 -4.4 0.75 0 0 0</pose>
       <link name="link">
         <collision name="collision">
-          <geometry><box><size>5 0.2 1.5</size></box></geometry>
+          <geometry><box><size>2.5 0.2 1.5</size></box></geometry>
         </collision>
         <visual name="visual">
-          <geometry><box><size>5 0.2 1.5</size></box></geometry>
+          <geometry><box><size>2.5 0.2 1.5</size></box></geometry>
           <material>
             <ambient>0.4 0.4 0.4 1</ambient>
             <diffuse>0.4 0.4 0.4 1</diffuse>
+          </material>
+        </visual>
+      </link>
+    </model>
+
+    <!-- Dynamic obstacle driven by ROS node via /gazebo/set_model_state.
+         gz-sim-* plugins removed for Gazebo Classic compatibility. -->
+    <model name="moving_box_obstacle">
+      <static>false</static>
+      <kinematic>true</kinematic>
+      <pose>0 2.2 0.5 0 0 0</pose>
+      <link name="body_link">
+        <collision name="collision">
+          <geometry>
+            <box>
+              <size>0.8 0.8 1.0</size>
+            </box>
+          </geometry>
+        </collision>
+        <visual name="visual">
+          <geometry>
+            <box>
+              <size>0.8 0.8 1.0</size>
+            </box>
+          </geometry>
+          <material>
+            <ambient>1 0.5 0 1</ambient>
+            <diffuse>1 0.5 0 1</diffuse>
           </material>
         </visual>
       </link>
@@ -328,13 +343,13 @@
     <!-- Bottom-right quadrant blocker -->
     <model name="blocker_br">
       <static>true</static>
-      <pose>7 -5.5 0.75 0 0 0</pose>
+      <pose>3.5 -2.75 0.75 0 0 0</pose>
       <link name="link">
         <collision name="collision">
-          <geometry><box><size>5 0.2 1.5</size></box></geometry>
+          <geometry><box><size>2.5 0.2 1.5</size></box></geometry>
         </collision>
         <visual name="visual">
-          <geometry><box><size>5 0.2 1.5</size></box></geometry>
+          <geometry><box><size>2.5 0.2 1.5</size></box></geometry>
           <material>
             <ambient>0.4 0.4 0.4 1</ambient>
             <diffuse>0.4 0.4 0.4 1</diffuse>
@@ -344,18 +359,18 @@
     </model>
 
     <!-- ===================================================== -->
-    <!-- SHELVES / COLORED BOXES -->
+    <!-- SHELVES / COLORED BOXES (scaled to ~50%, disabled) -->
     <!-- ===================================================== -->
-<!--
+    <!--
     <model name="shelf_red">
       <static>true</static>
-      <pose>-10 8 0.5 0 0 0</pose>
+      <pose>-5 4 0.5 0 0 0</pose>
       <link name="link">
         <collision name="collision">
-          <geometry><box><size>2 1 1</size></box></geometry>
+          <geometry><box><size>1 0.5 1</size></box></geometry>
         </collision>
         <visual name="visual">
-          <geometry><box><size>2 1 1</size></box></geometry>
+          <geometry><box><size>1 0.5 1</size></box></geometry>
           <material>
             <ambient>1 0 0 1</ambient>
             <diffuse>1 0 0 1</diffuse>
@@ -366,13 +381,13 @@
 
     <model name="shelf_blue">
       <static>true</static>
-      <pose>10 8 0.5 0 0 0</pose>
+      <pose>5 4 0.5 0 0 0</pose>
       <link name="link">
         <collision name="collision">
-          <geometry><box><size>2 1 1</size></box></geometry>
+          <geometry><box><size>1 0.5 1</size></box></geometry>
         </collision>
         <visual name="visual">
-          <geometry><box><size>2 1 1</size></box></geometry>
+          <geometry><box><size>1 0.5 1</size></box></geometry>
           <material>
             <ambient>0 0 1 1</ambient>
             <diffuse>0 0 1 1</diffuse>
@@ -383,13 +398,13 @@
 
     <model name="shelf_green">
       <static>true</static>
-      <pose>-10 -8 0.5 0 0 0</pose>
+      <pose>-5 -4 0.5 0 0 0</pose>
       <link name="link">
         <collision name="collision">
-          <geometry><box><size>2 1 1</size></box></geometry>
+          <geometry><box><size>1 0.5 1</size></box></geometry>
         </collision>
         <visual name="visual">
-          <geometry><box><size>2 1 1</size></box></geometry>
+          <geometry><box><size>1 0.5 1</size></box></geometry>
           <material>
             <ambient>0 1 0 1</ambient>
             <diffuse>0 1 0 1</diffuse>
@@ -400,13 +415,13 @@
 
     <model name="shelf_yellow">
       <static>true</static>
-      <pose>10 -8 0.5 0 0 0</pose>
+      <pose>5 -4 0.5 0 0 0</pose>
       <link name="link">
         <collision name="collision">
-          <geometry><box><size>2 1 1</size></box></geometry>
+          <geometry><box><size>1 0.5 1</size></box></geometry>
         </collision>
         <visual name="visual">
-          <geometry><box><size>2 1 1</size></box></geometry>
+          <geometry><box><size>1 0.5 1</size></box></geometry>
           <material>
             <ambient>1 1 0 1</ambient>
             <diffuse>1 1 0 1</diffuse>
@@ -414,7 +429,8 @@
         </visual>
       </link>
     </model>
--->
+    -->
+
     <include>
       <uri>../turtlebot3_burger/model.sdf</uri>
       <pose>0 0 0.1 0 0 0</pose>

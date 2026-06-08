@@ -1,0 +1,43 @@
+<?xml version="1.0"?>
+<launch>
+
+  <!--
+    Dynamic obstacle node for Gazebo Classic.
+
+    Usage:
+      1. Launch warehouse_world first:
+         roslaunch warehouse_world warehouse_world.launch
+      2. Then launch this file:
+         roslaunch dynamic_obstacles spawn_boxes.launch
+
+    The node drives the model named "moving_box_obstacle"
+    (defined in warehouse_world.sdf) along the Y axis by
+    periodically calling /gazebo/set_model_state.
+
+    Parameters:
+      ~model_name (string, default: moving_box_obstacle)
+          Name of the model to move (must match the SDF world file).
+      ~y_min      (double, default: -1.5)
+          Lower bound of Y-axis movement (metres).
+      ~y_max      (double, default:  1.5)
+          Upper bound of Y-axis movement (metres).
+      ~speed      (double, default:  0.20)
+          Movement speed (metres/second).
+      ~rate       (double, default:  20)
+          Control loop frequency (Hz).
+  -->
+
+  <node
+    name="moving_obstacles"
+    pkg="dynamic_obstacles"
+    type="moving_obstacles.py"
+    output="screen"
+    required="false">
+    <param name="model_name" value="$(optenv MOVING_OBSTACLE_NAME moving_box_obstacle)" />
+    <param name="y_min"      value="$(optenv MOVING_OBSTACLE_Y_MIN -1.5)" />
+    <param name="y_max"      value="$(optenv MOVING_OBSTACLE_Y_MAX  1.5)" />
+    <param name="speed"      value="$(optenv MOVING_OBSTACLE_SPEED  0.20)" />
+    <param name="rate"       value="$(optenv MOVING_OBSTACLE_RATE   20)" />
+  </node>
+
+</launch>
